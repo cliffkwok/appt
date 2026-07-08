@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generative AI Risk Pathway</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --stage-bg: #eef3fb;
+        --slide-bg: #f8fbff;
+        --ink: #202124;
+        --muted: #5f6368;
+        --line: #dfe6f2;
+        --blue: #1a73e8;
+        --red: #d93025;
+        --yellow: #f9ab00;
+        --green: #188038;
+        --card: #ffffff;
+        --shadow: 0 30px 90px rgba(60, 64, 67, 0.16);
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      /* ===========================================
+         FIXED 16:9 STAGE: MANDATORY BASE STYLES
+         Include this ENTIRE file in every presentation.
+         Slides are authored at 1920x1080 and scaled as a whole.
+         =========================================== */
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--stage-bg, #000);
+      }
+
+      .deck-viewport {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        background: var(--stage-bg, #000);
+      }
+
+      .deck-stage {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        transform-origin: 0 0;
+        background: var(--slide-bg, #fff);
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        display: block;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        background: var(--slide-bg, #fff);
+      }
+
+      .slide.active,
+      .slide.visible {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 1;
+      }
+
+      img,
+      video,
+      canvas,
+      svg {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .deck-controls {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        z-index: 1000;
+      }
+
+      @media print {
+        html,
+        body {
+          width: 1920px;
+          height: auto;
+          overflow: visible;
+          background: #fff;
+        }
+
+        .deck-viewport {
+          position: static;
+          overflow: visible;
+          background: #fff;
+        }
+
+        .deck-stage {
+          position: static;
+          width: auto;
+          height: auto;
+          transform: none !important;
+          background: none;
+        }
+
+        .slide {
+          position: relative;
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          width: 1920px;
+          height: 1080px;
+          break-after: page;
+          page-break-after: always;
+        }
+
+        .slide:last-child {
+          break-after: auto;
+          page-break-after: auto;
+        }
+
+        .deck-controls {
+          display: none !important;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.2s !important;
+        }
+      }
+
+      body {
+        font-family: "Google Sans", "Noto Sans", sans-serif;
+        color: var(--ink);
+      }
+
+      .slide {
+        padding: 64px 78px;
+      }
+
+      .ambient {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 16% 18%, rgba(66, 133, 244, 0.16), transparent 25%),
+          radial-gradient(circle at 82% 12%, rgba(251, 188, 4, 0.18), transparent 24%),
+          radial-gradient(circle at 72% 86%, rgba(52, 168, 83, 0.14), transparent 28%);
+      }
+
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(32, 33, 36, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(32, 33, 36, 0.035) 1px, transparent 1px);
+        background-size: 96px 96px;
+        mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 78%, transparent);
+      }
+
+      .content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 48px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 18px;
+        color: var(--blue);
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--blue);
+        box-shadow: 24px 0 0 var(--red), 48px 0 0 var(--yellow), 72px 0 0 var(--green);
+      }
+
+      h1 {
+        max-width: 1200px;
+        margin: 0;
+        color: #151719;
+        font-size: 72px;
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+      }
+
+      .summary {
+        width: 430px;
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 26px;
+        line-height: 1.35;
+      }
+
+      .diagram {
+        position: relative;
+        flex: 1;
+        margin-top: 56px;
+        display: grid;
+        grid-template-columns: 355px 615px 600px;
+        gap: 58px;
+        align-items: center;
+      }
+
+      .rail {
+        position: absolute;
+        left: 245px;
+        right: 305px;
+        top: 348px;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--blue), var(--yellow), var(--red));
+        opacity: 0.22;
+      }
+
+      .arrow-head {
+        position: absolute;
+        right: 294px;
+        top: 332px;
+        width: 0;
+        height: 0;
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-left: 28px solid rgba(217, 48, 37, 0.34);
+      }
+
+      .source-card,
+      .impact-card {
+        border-radius: 44px;
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .source-card {
+        padding: 42px;
+        border: 1px solid rgba(26, 115, 232, 0.18);
+      }
+
+      .label {
+        display: inline-flex;
+        margin-bottom: 26px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        color: var(--blue);
+        background: rgba(26, 115, 232, 0.1);
+        font-size: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .source-icon {
+        width: 128px;
+        height: 128px;
+        margin-bottom: 34px;
+        border-radius: 34px;
+        display: grid;
+        place-items: center;
+        color: white;
+        background: linear-gradient(135deg, #1a73e8, #174ea6);
+        box-shadow: 0 24px 70px rgba(26, 115, 232, 0.25);
+      }
+
+      .source-icon svg {
+        width: 72px;
+        height: 72px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 42px;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+      }
+
+      .card-copy {
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: 24px;
+        line-height: 1.35;
+      }
+
+      .mistakes {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+
+      .center-title {
+        grid-column: 1 / -1;
+        padding: 0 12px 6px;
+      }
+
+      .center-title .label {
+        color: #8a5700;
+        background: rgba(249, 171, 0, 0.16);
+      }
+
+      .center-title h2 {
+        max-width: 520px;
+      }
+
+      .mistake {
+        min-height: 178px;
+        padding: 28px;
+        border: 1px solid rgba(60, 64, 67, 0.09);
+        border-radius: 34px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 20px 55px rgba(60, 64, 67, 0.1);
+      }
+
+      .mistake strong {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--ink);
+        font-size: 25px;
+        letter-spacing: -0.025em;
+      }
+
+      .mistake span {
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.32;
+      }
+
+      .dot {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 22px;
+        border-radius: 50%;
+      }
+
+      .dot.blue {
+        background: var(--blue);
+      }
+
+      .dot.yellow {
+        background: var(--yellow);
+      }
+
+      .dot.red {
+        background: var(--red);
+      }
+
+      .dot.green {
+        background: var(--green);
+      }
+
+      .impact-card {
+        position: relative;
+        overflow: hidden;
+        padding: 46px;
+        border: 2px solid rgba(217, 48, 37, 0.16);
+      }
+
+      .impact-card::after {
+        content: "";
+        position: absolute;
+        right: -94px;
+        top: -94px;
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        background: rgba(217, 48, 37, 0.12);
+      }
+
+      .impact-card .label {
+        color: var(--red);
+        background: rgba(217, 48, 37, 0.1);
+      }
+
+      .risk-meter {
+        position: relative;
+        width: 168px;
+        height: 168px;
+        margin: 12px 0 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle, white 0 48%, transparent 49%),
+          conic-gradient(var(--red) 0 72%, rgba(217, 48, 37, 0.14) 72% 100%);
+      }
+
+      .risk-meter span {
+        color: var(--red);
+        font-size: 52px;
+        font-weight: 700;
+      }
+
+      .impact-list {
+        display: grid;
+        gap: 16px;
+        margin-top: 26px;
+      }
+
+      .impact-item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        color: var(--ink);
+        font-size: 23px;
+        line-height: 1.28;
+      }
+
+      .impact-item::before {
+        content: "";
+        flex: 0 0 auto;
+        width: 12px;
+        height: 12px;
+        margin-top: 9px;
+        border-radius: 50%;
+        background: var(--red);
+      }
+
+      .guardrails {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 34px;
+      }
+
+      .guardrail {
+        padding: 22px 24px;
+        border: 1px solid rgba(24, 128, 56, 0.16);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.74);
+        color: #155724;
+        font-size: 21px;
+        font-weight: 700;
+        box-shadow: 0 14px 40px rgba(60, 64, 67, 0.08);
+      }
+
+      .guardrail span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 17px;
+        font-weight: 500;
+      }
+
+      .footnote {
+        margin-top: 24px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.7s var(--ease),
+          transform 0.7s var(--ease);
+      }
+
+      .slide.visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .slide.visible .reveal:nth-child(1) {
+        transition-delay: 0.08s;
+      }
+
+      .slide.visible .reveal:nth-child(2) {
+        transition-delay: 0.16s;
+      }
+
+      .slide.visible .reveal:nth-child(3) {
+        transition-delay: 0.24s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="deck-viewport">
+      <main class="deck-stage" id="deckStage">
+        <section class="slide active">
+          <div class="ambient"></div>
+          <div class="grid"></div>
+          <div class="content">
+            <header class="topbar reveal">
+              <div>
+                <p class="eyebrow">Generative AI Risk</p>
+                <h1>Poor AI use can turn useful data into exposed data.</h1>
+              </div>
+              <p class="summary">
+                The risk is rarely the model alone. It comes from unsafe inputs,
+                weak review, and public outputs that can be copied, mined, or
+                reconstructed.
+              </p>
+            </header>
+
+            <div class="diagram reveal" aria-label="Generative AI data leakage risk diagram">
+              <div class="rail"></div>
+              <div class="arrow-head"></div>
+
+              <article class="source-card">
+                <span class="label">Input</span>
+                <div class="source-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64" fill="none">
+                    <rect x="13" y="10" width="38" height="44" rx="8" stroke="currentColor" stroke-width="4" />
+                    <path d="M23 24h18M23 34h18M23 44h10" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <h2>Sensitive internal data</h2>
+                <p class="card-copy">
+                  Meeting notes, source code, customer files, contracts,
+                  research, pricing, strategy, or unreleased plans.
+                </p>
+              </article>
+
+              <div class="mistakes">
+                <div class="center-title">
+                  <span class="label">Unsafe AI Workflow</span>
+                  <h2>Four common mistakes create the leak path.</h2>
+                </div>
+                <article class="mistake">
+                  <div class="dot blue"></div>
+                  <strong>Paste raw data</strong>
+                  <span>Confidential files go into public or unmanaged AI tools.</span>
+                </article>
+                <article class="mistake">
+                  <div class="dot yellow"></div>
+                  <strong>No review step</strong>
+                  <span>Generated output is shared before facts, sources, and privacy are checked.</span>
+                </article>
+                <article class="mistake">
+                  <div class="dot green"></div>
+                  <strong>Train or test casually</strong>
+                  <span>Internal examples become prompts, fine-tuning data, or reusable context.</span>
+                </article>
+                <article class="mistake">
+                  <div class="dot red"></div>
+                  <strong>Public sharing</strong>
+                  <span>AI-written content reveals details that competitors or attackers can mine.</span>
+                </article>
+              </div>
+
+              <article class="impact-card">
+                <span class="label">Impact</span>
+                <div class="risk-meter" aria-hidden="true"><span>!</span></div>
+                <h2>Data leakage becomes business risk</h2>
+                <div class="impact-list">
+                  <div class="impact-item">Core data, IP, or source code can be exposed.</div>
+                  <div class="impact-item">False or sensitive AI output can spread publicly.</div>
+                  <div class="impact-item">Attackers can reconstruct context from repeated prompts.</div>
+                  <div class="impact-item">Trust, compliance, and market position can be damaged.</div>
+                </div>
+              </article>
+            </div>
+
+            <div class="guardrails reveal" aria-label="Safer generative AI guardrails">
+              <div class="guardrail">Minimize input<span>Remove secrets before prompting.</span></div>
+              <div class="guardrail">Use approved tools<span>Prefer enterprise AI with data controls.</span></div>
+              <div class="guardrail">Human review<span>Check privacy, accuracy, and ownership.</span></div>
+              <div class="guardrail">Log and classify<span>Know what data entered which model.</span></div>
+            </div>
+            <p class="footnote reveal">
+              Simple rule: if the data cannot be posted in a public channel, do not paste it into an unmanaged AI tool.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      class SlidePresentation {
+        constructor() {
+          this.slides = document.querySelectorAll(".slide");
+          this.stage = document.getElementById("deckStage");
+          this.setupStageScale();
+          this.showSlide(0);
+        }
+
+        setupStageScale() {
+          const scale = () => {
+            const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * factor) / 2;
+            const y = (window.innerHeight - 1080 * factor) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+          };
+
+          scale();
+          window.addEventListener("resize", scale);
+        }
+
+        showSlide(index) {
+          this.slides.forEach((slide, i) => {
+            slide.classList.toggle("active", i === index);
+            slide.classList.toggle("visible", i === index);
+          });
+        }
+      }
+
+      new SlidePresentation();
+    </script>
+  </body>
+</html>
